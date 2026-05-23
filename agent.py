@@ -108,11 +108,29 @@ async def run_agent(user_message: str, chat_id: int = 0) -> str:
 
     try:
         if agent.toolsets:
-            async with agent:
-                result = await agent.run(
-                    user_message,
-                    message_history=message_history,
-                )
+            try:
+                async with agent:
+                    result = await agent.run(
+                        user_message,
+                        message_history=message_history,
+                    )
+            except Exception as mcp_err:
+                if "Connection closed" in str(mcp_err) or "TaskGroup" in str(mcp_err):
+                    # MCP server failed to start — retry without MCP toolsets
+                    logger.warning("MCP server failed, retrying without MCP: %s", mcp_err)
+                    agent_no_mcp = Agent(
+                        model=build_ollama_model(),
+                        system_prompt=SYSTEM_PROMPT,
+                        retries=5,
+                    )
+                    agent_no_mcp.tool_plain(web_search_via_ddg)
+                    agent_no_mcp.tool_plain(fetch_web_page)
+                    result = await agent_no_mcp.run(
+                        user_message,
+                        message_history=message_history,
+                    )
+                else:
+                    raise
         else:
             result = await agent.run(
                 user_message,

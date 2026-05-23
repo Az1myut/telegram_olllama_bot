@@ -16,8 +16,8 @@ def get_email_mcp_server() -> MCPServerStdio | None:
     if not settings.email_sender or not settings.email_password:
         return None
     return MCPServerStdio(
-        command="python",
-        args=["-m", "mcp_email_server"],
+        command="mcp-server-email",
+        args=[],
         env={
             "SENDER": settings.email_sender,
             "PASSWORD": settings.email_password,
