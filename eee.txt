@@ -1,0 +1,15 @@
+"""
+# Telegram
+TELEGRAM_BOT_TOKEN=8752208608:AAE8VAOnbjyUrACgA0KyEXueAp3QOXeUf_I
+
+# GitHub
+
+# Zapier MCP
+# ZAPIER_MCP_URL=https://mcp.zapier.com/api/mcp/s/YOUR_ZAPIER_MCP_ID/mcp
+
+# Ollama
+OLLAMA_BASE_URL=http://localhost:11434/v1
+OLLAMA_MODEL=llama3.1:8b
+
+
+"""
