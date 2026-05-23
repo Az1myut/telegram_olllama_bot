@@ -72,10 +72,16 @@ def build_agent() -> Agent:
     if zapier:
         toolsets.append(zapier)
 
+    # Include GitHub username in prompt if configured
+    prompt = SYSTEM_PROMPT
+    if settings.github_username:
+        prompt += f"\n\nGitHub username/owner for repositories: {settings.github_username}"
+
     agent = Agent(
         model=model,
-        system_prompt=SYSTEM_PROMPT,
+        system_prompt=prompt,
         toolsets=toolsets if toolsets else None,
+        retries=3,
     )
 
     agent.tool_plain(web_search_via_ddg)
@@ -123,6 +129,14 @@ async def run_agent(user_message: str, chat_id: int = 0) -> str:
                 "2. Ollama is running: `ollama serve`\n"
                 f"3. Model is pulled: `ollama pull {settings.ollama_model}`\n"
                 "4. OLLAMA_BASE_URL in .env is correct"
+            )
+        if "not found" in error_msg or "resource not found" in error_msg:
+            return (
+                "⚠️ GitHub resource not found.\n\n"
+                "Please check:\n"
+                "- Repository name and owner are correct\n"
+                "- The file/path exists in the repo\n"
+                "- Your GitHub token has access to the repo"
             )
         raise
 
