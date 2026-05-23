@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import logging
+from collections import defaultdict
 
 from pydantic_ai import Agent
+from pydantic_ai.messages import ModelMessage
 from pydantic_ai.models.ollama import OllamaModel
 from pydantic_ai.providers.ollama import OllamaProvider
 
@@ -11,6 +13,12 @@ from mcp_servers import get_github_mcp_server, get_zapier_mcp_server
 from tools.web_fetch import fetch_web_page, web_search_via_ddg
 
 logger = logging.getLogger(__name__)
+
+# Per-chat conversation history (chat_id -> list of messages)
+_chat_histories: dict[int, list[ModelMessage]] = defaultdict(list)
+
+# Max history entries per chat to avoid memory bloat
+MAX_HISTORY = 20
 
 SYSTEM_PROMPT = """
 You are a helpful assistant connected to a Telegram bot.
@@ -40,7 +48,8 @@ When the user asks you to create a Notion page about a topic:
 - For simple greetings or questions, just reply normally without using any tools.
 - Only use tools when the task clearly requires them.
 - Be concise in replies.
-- Each message is independent, do not assume previous context.
+- IMPORTANT: When a task requires tools, actually USE the tools immediately.
+  Do NOT just describe what you would do. Execute the actions step by step.
 """
 
 
@@ -75,17 +84,30 @@ def build_agent() -> Agent:
     return agent
 
 
-async def run_agent(user_message: str) -> str:
-    logger.info("Running agent for message: %s", user_message)
+async def run_agent(user_message: str, chat_id: int = 0) -> str:
+    """Run the agent with per-chat conversation history."""
+    logger.info("Running agent for chat %s: %s", chat_id, user_message)
     agent = build_agent()
+
+    # Get existing history for this chat
+    message_history = _chat_histories[chat_id] if chat_id else None
 
     try:
         if agent.toolsets:
-            # Only open MCP context if there are MCP servers configured
             async with agent:
-                result = await agent.run(user_message)
+                result = await agent.run(
+                    user_message,
+                    message_history=message_history,
+                )
         else:
-            result = await agent.run(user_message)
+            result = await agent.run(
+                user_message,
+                message_history=message_history,
+            )
+
+        # Save updated history (trim to MAX_HISTORY)
+        if chat_id:
+            _chat_histories[chat_id] = list(result.all_messages())[-MAX_HISTORY:]
 
         logger.info("Agent result: %s", result.output)
         return result.output
@@ -103,3 +125,8 @@ async def run_agent(user_message: str) -> str:
                 "4. OLLAMA_BASE_URL in .env is correct"
             )
         raise
+
+
+def clear_history(chat_id: int) -> None:
+    """Clear conversation history for a chat."""
+    _chat_histories.pop(chat_id, None)
