@@ -11,12 +11,16 @@ class Settings(BaseSettings):
     github_personal_access_token: Optional[str] = None
     github_username: Optional[str] = None
 
-    # Zapier MCP (optional)
-    zapier_mcp_url: Optional[str] = None
+    # Email via mcp-server-email (optional)
+    email_sender: Optional[str] = None
+    email_password: Optional[str] = None
+    email_smtp_host: str = "smtp.gmail.com"
+    email_smtp_port: int = 587
 
     # Ollama
     ollama_base_url: str = "http://localhost:11434/v1"
-    ollama_model: str = "llama3.1:8b"
+    ollama_model: str = "qwen3.5:cloud"
+    ollama_api_key: Optional[str] = None
 
     class Config:
         env_file = ".env"

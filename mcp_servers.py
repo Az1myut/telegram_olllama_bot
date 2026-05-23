@@ -1,4 +1,4 @@
-from pydantic_ai.mcp import MCPServerStdio, MCPServerSSE
+from pydantic_ai.mcp import MCPServerStdio
 from config import settings
 
 
@@ -12,7 +12,14 @@ def get_github_mcp_server() -> MCPServerStdio | None:
     )
 
 
-def get_zapier_mcp_server() -> MCPServerSSE | None:
-    if not settings.zapier_mcp_url:
+def get_email_mcp_server() -> MCPServerStdio | None:
+    if not settings.email_sender or not settings.email_password:
         return None
-    return MCPServerSSE(url=settings.zapier_mcp_url)
+    return MCPServerStdio(
+        command="python",
+        args=["-m", "mcp_email_server"],
+        env={
+            "SENDER": settings.email_sender,
+            "PASSWORD": settings.email_password,
+        },
+    )
