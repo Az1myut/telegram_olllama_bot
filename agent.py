@@ -92,4 +92,14 @@ async def run_agent(user_message: str) -> str:
 
     except Exception as e:
         logger.error("Agent error: %s", e, exc_info=True)
+        error_msg = str(e).lower()
+        if "connection" in error_msg or "connect" in error_msg:
+            return (
+                f"⚠️ Cannot connect to Ollama at {settings.ollama_base_url}\n\n"
+                "Please make sure:\n"
+                "1. Ollama is installed (https://ollama.ai)\n"
+                "2. Ollama is running: `ollama serve`\n"
+                f"3. Model is pulled: `ollama pull {settings.ollama_model}`\n"
+                "4. OLLAMA_BASE_URL in .env is correct"
+            )
         raise
