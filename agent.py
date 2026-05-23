@@ -75,13 +75,19 @@ def build_agent() -> Agent:
     # Include GitHub username in prompt if configured
     prompt = SYSTEM_PROMPT
     if settings.github_username:
-        prompt += f"\n\nGitHub username/owner for repositories: {settings.github_username}"
+        prompt += (
+            f"\n\nGitHub configuration:"
+            f"\n- Owner/username: {settings.github_username}"
+            f"\n- When using get_file_contents, use parameters: owner, repo, path"
+            f"\n- Do NOT pass 'branch' parameter — use 'ref' for branch name if needed"
+            f"\n- Default branch is 'main'"
+        )
 
     agent = Agent(
         model=model,
         system_prompt=prompt,
         toolsets=toolsets if toolsets else None,
-        retries=3,
+        retries=5,
     )
 
     agent.tool_plain(web_search_via_ddg)
