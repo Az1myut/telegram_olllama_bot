@@ -5,5 +5,4 @@ pydantic-settings>=2.6.1
 ollama>=0.4.4
 httpx>=0.27.2
 python-dotenv>=1.0.1
-workspace-mcp
 

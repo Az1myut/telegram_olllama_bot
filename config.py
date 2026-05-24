@@ -11,9 +11,8 @@ class Settings(BaseSettings):
     github_personal_access_token: Optional[str] = None
     github_username: Optional[str] = None
 
-    # Google Workspace MCP - Gmail (optional)
-    google_oauth_client_id: Optional[str] = None
-    google_oauth_client_secret: Optional[str] = None
+    # Zapier MCP - Gmail + Notion (optional)
+    zapier_mcp_url: Optional[str] = None
 
     # Ollama
     # For local Ollama (with cloud models via `ollama signin`): use localhost
