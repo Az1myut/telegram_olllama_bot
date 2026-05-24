@@ -12,14 +12,15 @@ def get_github_mcp_server() -> MCPServerStdio | None:
     )
 
 
-def get_email_mcp_server() -> MCPServerStdio | None:
-    if not settings.email_sender or not settings.email_password:
+def get_gmail_mcp_server() -> MCPServerStdio | None:
+    """Google Workspace MCP server for Gmail (send, read, search emails)."""
+    if not settings.google_oauth_client_id or not settings.google_oauth_client_secret:
         return None
     return MCPServerStdio(
-        command="mcp-server-email",
-        args=[],
+        command="uvx",
+        args=["workspace-mcp", "--tools", "gmail"],
         env={
-            "SENDER": settings.email_sender,
-            "PASSWORD": settings.email_password,
+            "GOOGLE_OAUTH_CLIENT_ID": settings.google_oauth_client_id,
+            "GOOGLE_OAUTH_CLIENT_SECRET": settings.google_oauth_client_secret,
         },
     )

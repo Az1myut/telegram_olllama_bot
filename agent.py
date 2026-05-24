@@ -9,7 +9,7 @@ from pydantic_ai.models.ollama import OllamaModel
 from pydantic_ai.providers.ollama import OllamaProvider
 
 from config import settings
-from mcp_servers import get_github_mcp_server, get_email_mcp_server
+from mcp_servers import get_github_mcp_server, get_gmail_mcp_server
 from tools.web_fetch import fetch_web_page, web_search_via_ddg
 
 logger = logging.getLogger(__name__)
@@ -33,7 +33,7 @@ GitHub repository:
 3. Create a new branch (name it fix/agent-<short-description>).
 4. Commit the fixed files to that branch.
 5. Open a pull request from that branch to main with a clear description.
-6. Use the send_email tool to notify the user that a PR was opened.
+6. Use the Gmail MCP tools (e.g. send_email or gmail_send) to notify the user that a PR was opened.
 7. Reply to the user with the PR link.
 
 ## Workflow 2 - Notion Page Creation
@@ -68,11 +68,11 @@ def build_agent() -> Agent:
 
     toolsets = []
     github = get_github_mcp_server()
-    email = get_email_mcp_server()
+    gmail = get_gmail_mcp_server()
     if github:
         toolsets.append(github)
-    if email:
-        toolsets.append(email)
+    if gmail:
+        toolsets.append(gmail)
 
     # Include GitHub username in prompt if configured
     prompt = SYSTEM_PROMPT

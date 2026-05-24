@@ -11,11 +11,9 @@ class Settings(BaseSettings):
     github_personal_access_token: Optional[str] = None
     github_username: Optional[str] = None
 
-    # Email via mcp-server-email (optional)
-    email_sender: Optional[str] = None
-    email_password: Optional[str] = None
-    email_smtp_host: str = "smtp.gmail.com"
-    email_smtp_port: int = 587
+    # Google Workspace MCP - Gmail (optional)
+    google_oauth_client_id: Optional[str] = None
+    google_oauth_client_secret: Optional[str] = None
 
     # Ollama
     # For local Ollama (with cloud models via `ollama signin`): use localhost
